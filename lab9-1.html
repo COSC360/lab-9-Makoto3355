@@ -5,12 +5,25 @@
 <script type="text/javascript" src="scripts/validate.js"></script>
 
 <!-- Password checking script here!! -->
-
+<script>
+  function checkPasswordMatch(e){
+    e.preventDefault();
+    var pass1 = document.getElementById("password").value;
+    var pass2 = document.getElementById("password-check").value;
+    if(pass1 !== pass2){
+      makeRed(document.getElementById("password-check"));
+      window.alert("Passwords do not match");
+    }
+    else{
+      mainForm.submit();
+    }
+  }
+</script>
 </head>
 
 <body>
 
-<form method="post" action="newuser.php" id="mainForm" >
+<form method="post" action="newuser.php" id="mainForm">
   First Name:<br>
   <input type="text" name="firstname" id="firstname" class="required">
   <br>
