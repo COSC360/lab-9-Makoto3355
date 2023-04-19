@@ -12,7 +12,7 @@ if(empty($_POST["password"])){
     die("Fill in your password.");
 }
 
-$connection=require("db-connect.php");
+$connection=require("db_connect.php");
   
    
 $pass_hash=md5($_POST["password"]);

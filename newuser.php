@@ -32,7 +32,7 @@ if($_POST["password"]!=$_POST["password-check"]){
     die("Passwords must match");
 }
 
-$connection=require("db-connect.php");
+$connection=require("db_connect.php");
 
 $pass_hash=md5($_POST["password"]);
 
