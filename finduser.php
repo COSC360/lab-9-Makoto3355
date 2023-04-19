@@ -1,63 +1,39 @@
 <?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors', 1 );
+error_reporting(E_ALL);
 
-if (
-    isset($_POST['username']) && strlen($_POST['username']) > 0 
-) {
+if($_SERVER["REQUEST_METHOD"]==POST){
+    if(empty($_POST["username"])){
+        die("Fill in your Username.")
+    }
+    $connection = require("db_connect.php");
+    $sql = "SELECT * FROM users WHERE username =?;"
+    $stmt=$connection->prepare($sql);
+    $stmt->bind_param('s', $_POST["username"]);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    try {
-        $host = "localhost";
-        $database = "lab9";
-        $user = "webuser";
-        $password = "P@ssw0rd";
 
-        $conString = 'mysql:host=' . $host . ';dbname=' . $database;
-        $pdo = new PDO($conString, $user, $password);
-
-        $sql = "Select * from users where username = :username";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(":username", $_POST['username']);
-
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($result != null){
-            $fn = $result['firstName'];
-            $ln = $result['lastName'];
-            $username = $result['username'];
-            $email = $result['email'];
-            echo '
-                <fieldset>
-                    <legend>'.$username.'</legend>
-                    <table>
-                    <thead>
-                    <tr>
-                        <td>First Name:</td>                    
-                        <td>'.$fn.'</td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                    <td>Last Name:</td>                    
-                    <td>'.$ln.'</td>
-                    </tr>
-                    <tr>
-                    <td>Email:</td>
-                    <td>'.$email.'</td>
-                    </tr>
-                    </table>
-            ';
-            $pdo = null;
-        }
-        else{
-            echo "Username invalid or does not exist";
-            echo  "<br><a href = 'lab9-4.html'> Return to previous page </a> ";
-
-            $pdo = null;
-        }
-    } catch (PDOException $e) {
-        die($e->getMessage());
+    $row= $resul->fetch_assoc();
+    if($result){
+        echo "<form method='post' action = 'finduser.php'"
+        echo"<fieldset>";
+        echo"<legend>";
+        echo "User: ".$row['username']."<br>";
+        echo"</legend>";
+        echo "<p>";
+        echo "<label>First Name: ".$row['firstName']."</label>";
+        echo "</p>";
+        echo "<p>";
+        echo "<label>Last Name: ".$row['lastName']."</label>";
+        echo "</p>";
+        echo "<p>";
+        echo "<label>Email: ".$row['email']."</label>";
+        echo "</p>";
+        echo"</fieldset>";
+        echo "</form>"
     }
 }
-else{
-    echo "Missing form info";
-}
+$connection->close();
 ?>

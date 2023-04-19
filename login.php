@@ -1,44 +1,46 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-if (
-    isset($_POST['username']) && strlen($_POST['username']) > 0 &&
-    isset($_POST['password']) && strlen($_POST['password']) > 0
-) {
+if($_SERVER["REQUEST_METHOD"]=="POST"){
+if(empty($_POST["username"])){
+    die("Fill in your Username.");
+}
 
-    try {
-        $host = "localhost";
-        $database = "lab9";
-        $user = "webuser";
-        $password = "P@ssw0rd";
+if(empty($_POST["password"])){
+    die("Fill in your password.");
+}
 
-        $conString = 'mysql:host=' . $host . ';dbname=' . $database;
-        $pdo = new PDO($conString, $user, $password);
+$connection=require("db-connect.php");
+  
+   
+$pass_hash=md5($_POST["password"]);
+$query = 
+"SELECT username, password 
+FROM users WHERE username=?;";
+$stmt=$connection->prepare($query);
+$stmt->bind_param('s',$_POST["username"]);
+$stmt->execute();
+$result = $stmt->get_result();
 
-        $sql = "Select * from users where username = :username and password =:password";
-        $stmt = $pdo->prepare($sql);
+// if($result){
+//  echo "user has valid account.";
+// } else if ( $row["password"]==$pass_hash){
+//     echo "username and/or password are invalid";
+// }
 
-        $passhash = md5($_POST['password']);
-        $stmt->bindValue(":username", $_POST['username']);
-        $stmt->bindValue(":password",$passhash);
 
-        $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($result != null){
-            echo "Successfully logged in!";
-            echo "<br>Welcome ".$_POST['username'];
-            $pdo = null;
-        }
-        else{
-            echo "Username and/or password are invaild";
-            echo  "<br><a href = 'lab9-2.html'> Return to previous page </a> ";
 
-            $pdo = null;
-        }
-    } catch (PDOException $e) {
-        die($e->getMessage());
+while($row=$result->fetch_assoc()){
+
+    if( $row["password"]==$pass_hash){
+  
+        echo "user has a valid account";
+    } else{
+        echo "username and/or password are invalid";
     }
 }
-else{
-    echo "Missing form info";
+
 }
 ?>
